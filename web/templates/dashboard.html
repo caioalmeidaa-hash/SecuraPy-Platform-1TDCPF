@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Visão geral</h1>
+  {% if operador.nivel >= 3 %}
+  <form action="{{ url_for('web.analisar') }}" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button>Analisar logs agora</button>
+  </form>
+  {% endif %}
+</div>
+
+<section class="numeros">
+  <div class="cartao"><span>Eventos</span><strong>{{ resumo.totais.eventos }}</strong></div>
+  <div class="cartao"><span>Alertas</span><strong>{{ resumo.totais.alertas }}</strong></div>
+  <div class="cartao"><span>IPs pontuados (ML)</span><strong>{{ resumo.totais.ips_pontuados }}</strong></div>
+  <div class="cartao critico"><span>Alertas críticos</span><strong>{{ resumo.alertas_por_severidade.CRITICA }}</strong></div>
+</section>
+
+<section class="grade">
+  <div class="cartao">
+    <h2>Eventos por fonte</h2>
+    {% for fonte, total in resumo.eventos_por_fonte.items() %}
+      <div class="barra"><span>{{ fonte }}</span><meter value="{{ total }}" max="{{ maior_fonte }}"></meter><b>{{ total }}</b></div>
+    {% else %}<p class="vazio">Sem eventos — clique em “Analisar logs agora”.</p>{% endfor %}
+  </div>
+  <div class="cartao">
+    <h2>Alertas por severidade</h2>
+    {% for sev, total in resumo.alertas_por_severidade.items() %}
+      <div class="barra"><span><span class="sev sev-{{ sev|lower }}">{{ sev }}</span></span><meter value="{{ total }}" max="{{ maior_sev }}"></meter><b>{{ total }}</b></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="grade">
+  <div class="cartao">
+    <h2>Top 10 IPs por volume</h2>
+    <table>
+      <thead><tr><th>IP</th><th>Eventos</th><th>Fontes</th></tr></thead>
+      <tbody>
+      {% for item in resumo.top_ips %}
+        <tr><td><a href="{{ url_for('web.buscar_ip', ip=item.ip) }}">{{ item.ip }}</a></td><td>{{ item.eventos }}</td><td>{{ item.fontes|join(', ') }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="cartao">
+    <h2>Maior risco (Machine Learning)</h2>
+    <table>
+      <thead><tr><th>IP</th><th>Score</th><th>Rótulo</th><th>Anomalia</th></tr></thead>
+      <tbody>
+      {% for s in resumo.top_risco_ml %}
+        <tr><td><a href="{{ url_for('web.buscar_ip', ip=s.ip) }}">{{ s.ip }}</a></td>
+            <td><span class="risco risco-{{ (s.nivel or 'BAIXO')|lower }}">{{ s.score }}</span></td>
+            <td>{{ s.rotulo }}</td><td>{{ 'sim' if s.anomalo else 'não' }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cartao">
+  <h2>Alertas mais graves</h2>
+  {% include "_tabela_alertas.html" %}
+</section>
+{% endblock %}

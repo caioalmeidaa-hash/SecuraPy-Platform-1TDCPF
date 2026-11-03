@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}{{ ip }} · SecuraPy{% endblock %}
+{% block conteudo %}
+<h1>IP {{ ip }}</h1>
+{% if not d %}
+  <section class="cartao"><p class="vazio">Nenhum evento ou alerta registrado para este IP.</p></section>
+{% else %}
+<section class="grade tres">
+  <div class="cartao">
+    <h2>Geolocalização</h2>
+    {% if d.geo.privado %}<p>Rede interna (IP privado) — não consultado externamente.</p>
+    {% else %}
+    <dl>
+      <dt>Cidade</dt><dd>{{ d.geo.cidade }}</dd><dt>Região</dt><dd>{{ d.geo.regiao }}</dd>
+      <dt>País</dt><dd>{{ d.geo.pais }}</dd><dt>Org/ISP</dt><dd>{{ d.geo.org }}</dd>
+    </dl>
+    <p class="meta">{{ d.geo.descricao }}</p>
+    {% endif %}
+  </div>
+  <div class="cartao">
+    <h2>Risco (Machine Learning)</h2>
+    {% if d.score_ml and d.score_ml.score is not none %}
+      <p class="score risco-{{ d.score_ml.nivel|lower }}">{{ d.score_ml.score }}<small>/100</small></p>
+      <p>Rótulo: <b>{{ d.score_ml.rotulo }}</b> · nível {{ d.score_ml.nivel }}</p>
+      <p>Isolation Forest: {{ 'ANÔMALO' if d.score_ml.anomalo else 'dentro do padrão' }}</p>
+    {% else %}<p class="vazio">Sem score — rode uma análise.</p>{% endif %}
+  </div>
+  <div class="cartao">
+    <h2>Assistente (LLM)</h2>
+    {% if d.explicacao_llm %}
+      <p><span class="rotulo rotulo-{{ d.explicacao_llm.classificacao|lower }}">{{ d.explicacao_llm.classificacao }}</span>
+         <small class="meta">origem: {{ d.explicacao_llm.origem }}</small></p>
+      <p>{{ d.explicacao_llm.explicacao }}</p>
+    {% endif %}
+  </div>
+</section>
+<section class="cartao">
+  <h2>Alertas ({{ d.total_alertas }})</h2>
+  {% set recentes = d.alertas %}
+  {% include "_tabela_alertas.html" %}
+</section>
+<section class="cartao">
+  <h2>Eventos ({{ d.total_eventos }})</h2>
+  <table>
+    <thead><tr><th>Quando</th><th>Fonte</th><th>Tipo</th><th>Detalhes</th></tr></thead>
+    <tbody>
+    {% for e in d.eventos %}
+      <tr><td>{{ e.timestamp_original }}</td><td>{{ e.fonte }}</td><td>{{ e.tipo }}</td><td class="descricao">{{ e.detalhes }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

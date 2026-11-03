@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}SecuraPy Platform{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <a class="marca" href="{{ url_for('web.dashboard') }}">🛡️ SecuraPy <span>Platform</span></a>
+    {% if operador %}
+    <nav>
+      <a href="{{ url_for('web.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('web.alertas') }}">Alertas</a>
+      <form class="busca" action="{{ url_for('web.buscar_ip') }}" method="get">
+        <input name="ip" placeholder="Buscar IP…" aria-label="Buscar IP" maxlength="45" required>
+        <button>Buscar</button>
+      </form>
+      <span class="quem">{{ operador.nome }} · nível {{ operador.nivel }}</span>
+      <form action="{{ url_for('web.logout') }}" method="post">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="link">Sair</button>
+      </form>
+    </nav>
+    {% endif %}
+  </header>
+  <main>
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, texto in mensagens %}<p class="flash {{ categoria }}">{{ texto }}</p>{% endfor %}
+    {% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+  <footer>CyberShield Ltda. · SecuraPy Platform · Coding for Security</footer>
+</body>
+</html>

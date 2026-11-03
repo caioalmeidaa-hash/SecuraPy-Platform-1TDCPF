@@ -1,0 +1,17 @@
+<table>
+  <thead><tr><th>Severidade</th><th>Regra</th><th>IP</th><th>Descrição</th><th>Risco ML</th><th>Quando</th></tr></thead>
+  <tbody>
+  {% for a in (recentes if recentes is defined else dados.itens) %}
+    <tr>
+      <td><span class="sev sev-{{ a.severidade|lower }}">{{ a.severidade }}</span></td>
+      <td>{{ a.regra_id }} · {{ a.regra_nome }}</td>
+      <td><a href="{{ url_for('web.buscar_ip', ip=a.ip) }}">{{ a.ip }}</a></td>
+      <td class="descricao">{{ a.descricao }}</td>
+      <td>{{ a.score_risco if a.score_risco is not none else '—' }}</td>
+      <td>{{ a.timestamp_original or '' }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="vazio">Nenhum alerta.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

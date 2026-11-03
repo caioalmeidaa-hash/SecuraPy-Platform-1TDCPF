@@ -1,0 +1,4 @@
+{
+  "descricao": "IPs maliciosos conhecidos (threat intel da disciplina)",
+  "ips": ["185.220.101.1", "45.33.32.156", "91.240.118.172", "23.94.5.100"]
+}

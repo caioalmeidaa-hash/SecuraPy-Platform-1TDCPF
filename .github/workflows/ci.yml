@@ -1,0 +1,34 @@
+# BÔNUS — CI: roda a suíte pytest com MySQL real a cada push/PR
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root-ci
+          MYSQL_DATABASE: securapy_teste
+          MYSQL_USER: securapy
+          MYSQL_PASSWORD: SenhaCi12345
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot-ci --silent"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_USER: securapy
+      MYSQL_PASSWORD: SenhaCi12345
+      MYSQL_DATABASE: securapy_teste
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -v
+      - name: Build da imagem Docker
+        run: docker build -t securapy-platform:ci .

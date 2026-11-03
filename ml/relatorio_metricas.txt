@@ -1,0 +1,24 @@
+SecuraPy — Relatório de métricas do classificador de risco
+
+Algoritmo: random_forest
+Amostras: {'total': 784, 'ataque': 337, 'normal': 447, 'ips_reais_dos_logs': 14}
+
+Validação cruzada (5 folds, média ± desvio):
+  regressao_logistica  precisão=0.986±0.013  recall=0.994±0.007  F1=0.990±0.007
+  random_forest        precisão=0.991±0.012  recall=0.991±0.012  F1=0.991±0.012
+
+Holdout 20%:
+              precision    recall  f1-score   support
+
+      normal      0.989     1.000     0.994        90
+      ataque      1.000     0.985     0.992        67
+
+    accuracy                          0.994       157
+   macro avg      0.995     0.993     0.993       157
+weighted avg      0.994     0.994     0.994       157
+
+Matriz de confusão [[TN,FP],[FN,TP]]: [[90, 0], [1, 66]]
+
+Importância das features: {"falhas_login": 0.0221, "logins_ok": 0.1887, "usuarios_distintos": 0.0146, "portas_distintas": 0.0604, "bloqueios_firewall": 0.0171, "web_erros": 0.0547, "web_total": 0.0722, "alertas_regras": 0.4288, "em_blacklist": 0.0467, "ip_privado": 0.0947}
+
+SHA-256 do modelo.pkl: cd0ad39835d79e2672c755b704b466b04eb77069d12105c4e56e5a121e8a98aa

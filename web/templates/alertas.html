@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Alertas · SecuraPy{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Alertas</h1>
+  <form method="get" class="filtros">
+    <select name="severidade" aria-label="Severidade">
+      <option value="">Todas as severidades</option>
+      {% for s in severidades %}<option value="{{ s|lower }}" {{ 'selected' if filtros.severidade == s }}>{{ s }}</option>{% endfor %}
+    </select>
+    <button>Filtrar</button>
+  </form>
+</div>
+<section class="cartao">
+  <p class="meta">{{ dados.total }} alerta(s) · página {{ dados.pagina }} de {{ dados.paginas or 1 }}</p>
+  {% include "_tabela_alertas.html" %}
+  <nav class="paginas">
+    {% if dados.pagina > 1 %}<a href="{{ url_for('web.alertas', pagina=dados.pagina-1, severidade=(filtros.severidade or '')|lower) }}">← Anterior</a>{% endif %}
+    {% if dados.pagina < dados.paginas %}<a href="{{ url_for('web.alertas', pagina=dados.pagina+1, severidade=(filtros.severidade or '')|lower) }}">Próxima →</a>{% endif %}
+  </nav>
+</section>
+{% if operador.nivel >= 3 %}
+<section class="cartao">
+  <h2>Cadastrar alerta manual</h2>
+  <form method="post" action="{{ url_for('web.novo_alerta') }}" class="formulario">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>IP <input name="ip" required maxlength="45"></label>
+    <label>Severidade
+      <select name="severidade">{% for s in severidades %}<option>{{ s }}</option>{% endfor %}</select>
+    </label>
+    <label>Nome <input name="regra_nome" required maxlength="100"></label>
+    <label class="largo">Descrição <textarea name="descricao" required maxlength="500"></textarea></label>
+    <button>Cadastrar</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

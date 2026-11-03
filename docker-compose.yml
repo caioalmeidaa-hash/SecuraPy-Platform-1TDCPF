@@ -1,0 +1,70 @@
+# SecuraPy Platform — sobe API + MongoDB + MySQL numa rede interna.
+#   cp .env.example .env   (e troque as senhas)
+#   docker compose up --build
+name: securapy
+
+services:
+  api:
+    build: .
+    image: securapy-platform:latest
+    env_file: .env
+    environment:
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongo:27017/?authSource=admin
+      MONGO_DB: securapy
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+    ports:
+      - "5000:5000"   # API REST + dashboard
+      - "9999:9999"   # alertas em tempo real (python main.py console)
+    volumes:
+      - ./logs:/app/logs:ro        # logs de entrada (somente leitura)
+      - api_var:/app/var           # log de acesso (OWASP A09)
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [securapy_net]
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [securapy_net]
+    # Sem "ports": o banco só é acessível pela rede interna do compose.
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+    networks: [securapy_net]
+
+networks:
+  securapy_net:
+
+volumes:
+  mongo_data:
+  mysql_data:
+  api_var:

@@ -1,0 +1,74 @@
+{
+  "algoritmo_escolhido": "random_forest",
+  "amostras": {
+    "total": 784,
+    "ataque": 337,
+    "normal": 447,
+    "ips_reais_dos_logs": 14
+  },
+  "validacao_cruzada_5_folds": {
+    "regressao_logistica": {
+      "precision": {
+        "media": 0.9855,
+        "desvio": 0.013
+      },
+      "recall": {
+        "media": 0.9941,
+        "desvio": 0.0072
+      },
+      "f1": {
+        "media": 0.9897,
+        "desvio": 0.0074
+      },
+      "accuracy": {
+        "media": 0.9911,
+        "desvio": 0.0065
+      }
+    },
+    "random_forest": {
+      "precision": {
+        "media": 0.9911,
+        "desvio": 0.0119
+      },
+      "recall": {
+        "media": 0.9911,
+        "desvio": 0.0119
+      },
+      "f1": {
+        "media": 0.9911,
+        "desvio": 0.0119
+      },
+      "accuracy": {
+        "media": 0.9924,
+        "desvio": 0.0102
+      }
+    }
+  },
+  "holdout_20pct": {
+    "relatorio": "              precision    recall  f1-score   support\n\n      normal      0.989     1.000     0.994        90\n      ataque      1.000     0.985     0.992        67\n\n    accuracy                          0.994       157\n   macro avg      0.995     0.993     0.993       157\nweighted avg      0.994     0.994     0.994       157\n",
+    "matriz_confusao[[TN,FP],[FN,TP]]": [
+      [
+        90,
+        0
+      ],
+      [
+        1,
+        66
+      ]
+    ]
+  },
+  "importancia_features": {
+    "falhas_login": 0.0221,
+    "logins_ok": 0.1887,
+    "usuarios_distintos": 0.0146,
+    "portas_distintas": 0.0604,
+    "bloqueios_firewall": 0.0171,
+    "web_erros": 0.0547,
+    "web_total": 0.0722,
+    "alertas_regras": 0.4288,
+    "em_blacklist": 0.0467,
+    "ip_privado": 0.0947
+  },
+  "sha256_modelo": "cd0ad39835d79e2672c755b704b466b04eb77069d12105c4e56e5a121e8a98aa",
+  "treinado_em": "2026-11-03T03:07:54+00:00"
+}
