@@ -36,6 +36,7 @@ from api import validacao as v
 from api.servico import ErroEntrada, ServicoSecuraPy
 from db import RegistroDuplicado, RepositorioIndisponivel
 from ia.assistente import classificar_evento
+from ia.saude import calcular as calcular_saude
 from ml.treinar import CAMINHO_METRICAS
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -113,6 +114,21 @@ def detalhes_ip(ip):
 @api_bp.get("/resumo")
 def resumo():
     return jsonify(servico().resumo_dashboard())
+
+
+@api_bp.get("/ao-vivo")
+def ao_vivo():
+    """Dados da tela Ao vivo (consultada a cada 2 s pelo navegador)."""
+    s = servico()
+    campos = ("id", "severidade", "regra_id", "regra_nome", "ip", "descricao", "score_risco", "fonte")
+    return jsonify(
+        totais=s.repo.totais(),
+        alertas_por_severidade=s.repo.contagem_por_severidade(),
+        eventos_por_fonte=s.repo.contagem_por_fonte(),
+        ultimos=[{c: a.get(c) for c in campos} for a in s.repo.ultimos_alertas(12)],
+        top_risco=[{c: x.get(c) for c in ("ip", "score", "nivel", "rotulo", "anomalo")} for x in s.repo.listar_scores(6)],
+        saude=calcular_saude(s.repo),
+    )
 
 
 @api_bp.get("/ml/status")

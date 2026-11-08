@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 
 from alertas import servidor_alertas
-from core.coletor import MAPA_ARQUIVOS, carregar_log, carregar_todos_os_logs, parsear_linhas
+from core.coletor import MAPA_ARQUIVOS, PARSERS, carregar_log, carregar_todos_os_logs, parsear_linhas
 from core.detector import carregar_blacklist
 from core.enriquecimento import consultar_ip
 from core.pipeline import CAMINHO_BLACKLIST, CAMINHO_REGRAS, PASTA_LOGS, analisar_eventos
@@ -19,6 +19,7 @@ from ia.assistente import classificar_evento
 from ml.anomalias import detectar_anomalias
 from ml.classificar import ClassificadorRisco, ModeloIntegridadeError, priorizar_alertas, verificar_integridade
 from ml.features import extrair_features
+from notificacoes import telegram
 
 log = logging.getLogger("securapy.servico")
 
@@ -39,6 +40,7 @@ class ServicoSecuraPy:
         self.pasta_logs = os.path.realpath(pasta_logs)
         self.broadcast = broadcast
         self.cache_geo = {}
+        self.coletores = {}  # servidores conectados pelo scripts/coletor.py: nome → última atividade
 
     # ── entrada de dados ────────────────────────────────────────────────────
     def _caminho_seguro(self, relativo):
@@ -108,8 +110,34 @@ class ServicoSecuraPy:
             scores.setdefault(ip, {}).update(info)
         return scores
 
+    def analisar_texto(self, texto, fonte="auto"):
+        fontes = ("auth", "firewall", "web") if fonte == "auto" else (fonte,)
+        if any(f not in PARSERS for f in fontes):
+            raise ErroEntrada("Tipo de log invalido")
+        linhas = [l for l in texto.splitlines() if l.strip()][:MAX_EVENTOS_LOTE]
+        eventos, ignoradas = [], 0
+        for linha in linhas:
+            evento = next((e for f in fontes if (e := PARSERS[f](linha[:4000]))), None)
+            if evento:
+                eventos.append(evento)
+            else:
+                ignoradas += 1
+        if not eventos:
+            raise ErroEntrada("Nenhuma linha reconhecida (formatos: SSH, UFW, Apache/Nginx ou o da disciplina)")
+        return self._processar(eventos, {"origem": "upload", "linhas_ignoradas": ignoradas})
+
     def analisar(self, corpo=None):
-        eventos, meta = self.eventos_da_requisicao(corpo)
+        resultado = self._processar(*self.eventos_da_requisicao(corpo))
+        nome = corpo.get("coletor") if isinstance(corpo, dict) else None
+        if isinstance(nome, str) and nome.strip():
+            nome = nome.strip()[:60]
+            anterior = self.coletores.get(nome, {})
+            self.coletores[nome] = {"nome": nome, "ultimo_envio": datetime.now().isoformat(timespec="seconds"),
+                                    "linhas": anterior.get("linhas", 0) + resultado["eventos_processados"],
+                                    "alertas": anterior.get("alertas", 0) + resultado["alertas_gerados"]}
+        return resultado
+
+    def _processar(self, eventos, meta):
         regras = carregar_regras(CAMINHO_REGRAS)
         blacklist = carregar_blacklist(CAMINHO_BLACKLIST)
         resultado = analisar_eventos(eventos, regras, blacklist)
@@ -123,6 +151,7 @@ class ServicoSecuraPy:
                                  for ip, s in scores.items()})
 
         enviados = self._transmitir(alertas, resultado["ameacas"], scores) if self.broadcast else 0
+        telegram.notificar_criticos(alertas)  # celular do dono (só se o .env tiver o Telegram configurado)
 
         por_severidade = {}
         for a in alertas:

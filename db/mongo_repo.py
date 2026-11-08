@@ -241,6 +241,11 @@ class RepositorioMongo:
             doc.pop("_id", None)
         return doc
 
+    def ultimos_alertas(self, limite=10):
+        """Alertas mais recentes por ordem de chegada (tela Ao vivo)."""
+        cursor = self.alertas.find({}).sort([("ingerido_em", DESCENDING), ("peso_severidade", DESCENDING)]).limit(limite)
+        return [_serializar(d) for d in self._executar(list, cursor)]
+
     def listar_scores(self, limite=10):
         cursor = self.scores.find({}, {"_id": 0}).sort("score", DESCENDING).limit(limite)
         return self._executar(list, cursor)

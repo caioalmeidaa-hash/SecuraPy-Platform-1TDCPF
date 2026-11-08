@@ -29,22 +29,22 @@ ANO_PADRAO_SYSLOG = int(os.getenv("SECURAPY_ANO_SYSLOG", "2025"))
 # Ex: Jun  1 02:10:01 server sshd[1234]: Failed password for root from 185.220.101.1 port 54321 ssh2
 # Ex: Jun  1 02:10:05 server sshd[1234]: Accepted password for carlos from 10.0.0.5 port 22 ssh2
 _RE_AUTH_FAIL = re.compile(
-    r"(\w+\s+\d+\s+\d+:\d+:\d+)\s+\S+\s+sshd\[\d+\]:\s+Failed\s+\w+\s+for\s+(?:invalid\s+user\s+)?(\S+)\s+from\s+(\S+)"
+    r"(\w+\s+\d+\s+\d+:\d+:\d+|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:?\d{2}|Z)?)\s+\S+\s+sshd(?:-session)?\[\d+\]:\s+Failed\s+\w+\s+for\s+(?:invalid\s+user\s+)?(\S+)\s+from\s+(\S+)"
 )
 _RE_AUTH_OK = re.compile(
-    r"(\w+\s+\d+\s+\d+:\d+:\d+)\s+\S+\s+sshd\[\d+\]:\s+Accepted\s+\S+\s+for\s+(\S+)\s+from\s+(\S+)"
+    r"(\w+\s+\d+\s+\d+:\d+:\d+|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:?\d{2}|Z)?)\s+\S+\s+sshd(?:-session)?\[\d+\]:\s+Accepted\s+\S+\s+for\s+(\S+)\s+from\s+(\S+)"
 )
 
 # auth.log — sudo privilege escalation
 # Ex: Jun  1 02:13:45 server sudo[1300]: ubuntu : TTY=pts/0 ; PWD=/home/ubuntu ; USER=root ; COMMAND=/bin/bash
 _RE_AUTH_SUDO = re.compile(
-    r"(\w+\s+\d+\s+\d+:\d+:\d+)\s+\S+\s+sudo\[\d+\]:\s+(\S+)\s+:.*USER=(\S+)\s+;\s+COMMAND=(.+)"
+    r"(\w+\s+\d+\s+\d+:\d+:\d+|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:?\d{2}|Z)?)\s+\S+\s+sudo\[\d+\]:\s+(\S+)\s+:.*USER=(\S+)\s+;\s+COMMAND=(.+)"
 )
 
 # firewall.log — formato real do UFW
 # Ex: Jun  1 02:10:00 fw kernel: [UFW BLOCK] IN=eth0 OUT= ... SRC=45.33.32.156 DST=10.0.0.1 ... PROTO=TCP DPT=22 SPT=60001
 _RE_FW_BLOCK = re.compile(
-    r"(\w+\s+\d+\s+\d+:\d+:\d+).*\[UFW\s+(BLOCK|ALLOW)\].*SRC=(\S+).*DST=(\S+).*PROTO=(\S+).*DPT=(\d+)"
+    r"(\w+\s+\d+\s+\d+:\d+:\d+|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:?\d{2}|Z)?).*\[UFW\s+(BLOCK|ALLOW)\].*SRC=(\S+).*DST=(\S+).*PROTO=(\S+).*DPT=(\d+)"
 )
 
 # web_access.log — formato Apache combined log
@@ -85,6 +85,10 @@ def normalizar_timestamp(timestamp):
             return dt.replace(tzinfo=None).isoformat()
         except ValueError:
             continue
+    try:  # ISO 8601 do rsyslog/journalctl moderno: "2026-11-08T20:10:01.123456-03:00"
+        return datetime.fromisoformat(texto.replace("Z", "+00:00")).replace(tzinfo=None, microsecond=0).isoformat()
+    except ValueError:
+        pass
     try:  # syslog: "Jun 1 02:10:01" (sem ano)
         dt = datetime.strptime(f"{ANO_PADRAO_SYSLOG} {texto}", "%Y %b %d %H:%M:%S")
         return dt.isoformat()

@@ -34,6 +34,20 @@
     {% endif %}
   </div>
 </section>
+<section class="cartao diagnostico">
+  <div class="cabecalho">
+    <h2>🛠️ Onde está a falha e como corrigir <small class="meta">(Gemini analisa o que este IP tentou)</small></h2>
+    <form id="form-diag">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="ip" value="{{ ip }}">
+      <button id="botao-diag">Diagnosticar com IA</button>
+    </form>
+  </div>
+  <ol id="lista-diag" class="lista-diag"><li class="vazio">Clique para descobrir qual ponto fraco este atacante explorou e como fechar a brecha.</li></ol>
+  <small id="origem-diag" class="meta"></small>
+</section>
+<script src="{{ url_for('static', filename='diagnostico.js') }}"></script>
+
 <section class="cartao">
   <h2>Alertas ({{ d.total_alertas }})</h2>
   {% set recentes = d.alertas %}

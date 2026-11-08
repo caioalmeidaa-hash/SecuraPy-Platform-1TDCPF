@@ -13,6 +13,9 @@
     <nav>
       <a href="{{ url_for('web.dashboard') }}">Dashboard</a>
       <a href="{{ url_for('web.alertas') }}">Alertas</a>
+      <a class="link-vivo" href="{{ url_for('web.ao_vivo') }}"><span class="ponto"></span>Ao vivo</a>
+      <a href="{{ url_for('web.assistente') }}">💬 Pergunte à IA</a>
+      <a href="{{ url_for('web.conectar') }}">Conectar</a>
       <form class="busca" action="{{ url_for('web.buscar_ip') }}" method="get">
         <input name="ip" placeholder="Buscar IP…" aria-label="Buscar IP" maxlength="45" required>
         <button>Buscar</button>

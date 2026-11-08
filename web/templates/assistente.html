@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Pergunte à IA · SecuraPy{% endblock %}
+{% block conteudo %}
+<h1>💬 Pergunte ao SecuraPy</h1>
+<p class="intro">Pergunte do seu jeito, em português. A IA responde olhando os dados reais da sua empresa —
+  e diz quando não tem a informação.</p>
+
+<section class="cartao chat">
+  <div id="conversa" class="conversa">
+    <div class="msg ia">Olá! Sou o assistente de segurança do SecuraPy. Pergunte, por exemplo, se a sua empresa foi atacada
+      ou o que fazer agora.</div>
+  </div>
+  <div class="sugestoes">
+    <button type="button" class="sugestao">Fui atacado hoje?</button>
+    <button type="button" class="sugestao">Quem é o mais perigoso?</button>
+    <button type="button" class="sugestao">Qual a minha nota de segurança?</button>
+    <button type="button" class="sugestao">O que eu faço agora?</button>
+  </div>
+  <form id="form-chat" class="form-chat" autocomplete="off">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input id="pergunta" name="pergunta" maxlength="500" placeholder="Escreva sua pergunta…" required>
+    <button id="enviar-chat">Enviar</button>
+  </form>
+</section>
+<script src="{{ url_for('static', filename='chat.js') }}"></script>
+{% endblock %}

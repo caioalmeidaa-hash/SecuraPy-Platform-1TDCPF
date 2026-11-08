@@ -10,6 +10,27 @@
   {% endif %}
 </div>
 
+{% if operador.nivel >= 3 %}
+<section class="cartao upload">
+  <h2>Analisar um arquivo de log seu</h2>
+  <form action="{{ url_for('web.analisar_upload') }}" method="post" enctype="multipart/form-data" class="formulario">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Arquivo (.log ou .txt, ate 2 MB)
+      <input type="file" name="arquivo" required>
+    </label>
+    <label>Tipo de log
+      <select name="fonte">
+        <option value="auto">Detectar automaticamente</option>
+        <option value="auth">Login (SSH)</option>
+        <option value="firewall">Firewall (UFW)</option>
+        <option value="web">Acesso web (Apache/Nginx)</option>
+      </select>
+    </label>
+    <button>Enviar e analisar</button>
+  </form>
+</section>
+{% endif %}
+
 <section class="numeros">
   <div class="cartao"><span>Eventos</span><strong>{{ resumo.totais.eventos }}</strong></div>
   <div class="cartao"><span>Alertas</span><strong>{{ resumo.totais.alertas }}</strong></div>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block titulo %}Ao vivo · SecuraPy{% endblock %}
+{% block conteudo %}
+<div id="banner-critico" class="banner-critico" hidden>
+  <strong>🚨 ALERTA CRÍTICO</strong> <span id="banner-texto"></span>
+</div>
+
+<div class="cabecalho">
+  <h1><span class="ponto grande"></span> Monitoramento ao vivo</h1>
+  <div class="acoes-vivo">
+    <span id="status" class="status">conectando…</span>
+    {% if operador.nivel >= 5 %}
+    <form action="{{ url_for('web.zerar_dados') }}" method="post" id="form-zerar">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="secundario">Zerar dados (demo)</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<section class="cartao saude" id="saude">
+  <div class="nota-bloco">
+    <span class="rotulo-nota">Saúde da segurança</span>
+    <strong id="nota" class="nota">—</strong><small class="de100">/100</small>
+    <span id="faixa" class="faixa"></span>
+  </div>
+  <div class="saude-detalhes">
+    <p id="resumo-saude" class="meta">Calculando…</p>
+    <h3>O que fazer primeiro</h3>
+    <ol id="acoes-saude" class="acoes-saude"></ol>
+    <details class="porque">
+      <summary>Por que essa nota? (cada ponto perdido e o motivo)</summary>
+      <ul id="descontos-saude"></ul>
+    </details>
+  </div>
+</section>
+
+<section class="numeros vivo">
+  <div class="cartao"><span>Eventos analisados</span><strong id="n-eventos">0</strong></div>
+  <div class="cartao"><span>Alertas</span><strong id="n-alertas">0</strong></div>
+  <div class="cartao"><span>IPs pontuados (ML)</span><strong id="n-ips">0</strong></div>
+  <div class="cartao critico"><span>Críticos</span><strong id="n-criticos">0</strong></div>
+</section>
+
+<section class="cartao analista-ia">
+  <div class="cabecalho">
+    <h2>🤖 Analista de IA <small class="meta">(Gemini explica a situação em linguagem simples)</small></h2>
+    <form id="form-ia">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button id="botao-ia">Analisar com IA</button>
+    </form>
+  </div>
+  <p id="texto-ia" class="texto-ia vazio">Clique em “Analisar com IA” para receber um boletim do que está acontecendo agora.</p>
+  <small id="origem-ia" class="meta"></small>
+  <details id="indicios-ia" class="indicios" hidden>
+    <summary>Como a IA chegou nessa conclusão (indícios tirados dos logs)</summary>
+    <div id="lista-indicios"></div>
+  </details>
+</section>
+
+<section class="cartao">
+  <h2>Alertas por segundo <small class="meta">(últimos 2 minutos)</small></h2>
+  <canvas id="grafico" height="140"></canvas>
+</section>
+
+<section class="grade">
+  <div class="cartao">
+    <h2>Alertas chegando</h2>
+    <ul id="feed" class="feed"><li class="vazio">Aguardando eventos… rode o simulador de ataque.</li></ul>
+  </div>
+  <div class="cartao">
+    <h2>Por severidade</h2>
+    <div id="severidades"></div>
+    <h2 class="espaco">Maior risco (Machine Learning)</h2>
+    <ul id="risco" class="risco-lista"><li class="vazio">Sem IPs pontuados ainda.</li></ul>
+  </div>
+</section>
+
+<script src="{{ url_for('static', filename='ao_vivo.js') }}"></script>
+<script src="{{ url_for('static', filename='ia_vivo.js') }}"></script>
+{% endblock %}

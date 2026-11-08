@@ -40,3 +40,94 @@ textarea { min-height:70px; }
 .flash { padding:.6rem .9rem; border-radius:8px; background:#1d3b36; } .flash.erro { background:#4a1f24; }
 .vazio, .meta { color:var(--suave); } .paginas { display:flex; gap:1rem; margin-top:.8rem; }
 .filtros { display:flex; gap:.5rem; }
+
+.upload { margin-bottom:1.5rem; }
+/* ── Tela Ao vivo ─────────────────────────────────────────── */
+.ponto { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--critica); margin-right:.4rem;
+  box-shadow:0 0 0 0 rgba(255,92,92,.7); animation:respira 1.6s infinite; vertical-align:middle; }
+.ponto.grande { width:13px; height:13px; }
+@keyframes respira { 0% { box-shadow:0 0 0 0 rgba(255,92,92,.7); } 70% { box-shadow:0 0 0 10px rgba(255,92,92,0); } 100% { box-shadow:0 0 0 0 rgba(255,92,92,0); } }
+.link-vivo { font-weight:700; }
+.acoes-vivo { display:flex; align-items:center; gap:1rem; } .acoes-vivo form { margin:0; }
+button.secundario { background:transparent; color:var(--suave); border:1px solid var(--borda); font-weight:500; }
+.status { font-size:.8rem; color:var(--suave); } .status.ok { color:var(--acento); } .status.erro { color:var(--critica); }
+.numeros.vivo { margin-bottom:1rem; } .numeros.vivo strong { font-size:2.4rem; font-variant-numeric:tabular-nums; }
+.pulso { animation:pulso .7s ease-out; }
+@keyframes pulso { 0% { transform:scale(1.25); color:var(--acento); } 100% { transform:scale(1); } }
+#grafico { width:100%; display:block; }
+.feed, .risco-lista { list-style:none; margin:0; padding:0; }
+.feed { max-height:460px; overflow-y:auto; }
+.item-feed { display:flex; gap:.7rem; align-items:flex-start; padding:.55rem .3rem; border-bottom:1px solid var(--borda); }
+.item-feed .corpo { min-width:0; } .item-feed .desc { color:var(--suave); font-size:.85rem; word-break:break-word; }
+.item-feed.novo { animation:entra .8s ease-out; }
+@keyframes entra { 0% { background:rgba(63,182,168,.35); transform:translateX(-12px); opacity:0; } 100% { background:transparent; transform:none; opacity:1; } }
+.barra-vivo, .risco-lista li { display:grid; grid-template-columns:90px 1fr 55px; align-items:center; gap:.6rem; margin:.45rem 0; }
+.risco-lista li { grid-template-columns:120px 1fr 55px; }
+.barra-vivo b, .risco-lista b { text-align:right; font-variant-numeric:tabular-nums; }
+.trilho { height:12px; background:#0c1116; border-radius:6px; overflow:hidden; }
+.preench { height:100%; width:0; border-radius:6px; transition:width .8s ease; }
+h2.espaco { margin-top:1.4rem; }
+.banner-critico { position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:10; background:var(--critica); color:#fff;
+  padding:.8rem 1.4rem; border-radius:10px; box-shadow:0 10px 30px rgba(255,92,92,.45); font-size:1.05rem; animation:desce .4s ease-out; }
+@keyframes desce { from { transform:translate(-50%,-30px); opacity:0; } to { transform:translate(-50%,0); opacity:1; } }
+body.piscar { animation:piscar 1s ease-out; }
+@keyframes piscar { 0%,40% { box-shadow:inset 0 0 0 6px var(--critica); } 100% { box-shadow:inset 0 0 0 0 transparent; } }
+/* ── Analista de IA ───────────────────────────────────────── */
+.analista-ia { border-color:#3a3f7a; background:linear-gradient(135deg, #1a1f3a 0%, var(--cartao) 60%); }
+.analista-ia .cabecalho form { margin:0; }
+.texto-ia { font-size:1.05rem; line-height:1.6; margin:.4rem 0 .3rem; min-height:1.6em; }
+.texto-ia.pensando { color:var(--suave); animation:pensa 1.2s ease-in-out infinite; }
+@keyframes pensa { 50% { opacity:.4; } }
+button:disabled { opacity:.6; cursor:wait; }
+/* ── Diagnóstico de falhas ────────────────────────────────── */
+.diagnostico { border-color:#3a5a3f; background:linear-gradient(135deg, #17291d 0%, var(--cartao) 60%); }
+.diagnostico .cabecalho form { margin:0; }
+.lista-diag { margin:.4rem 0 .3rem; padding-left:1.4rem; }
+.item-diag { padding:.6rem 0; border-bottom:1px solid var(--borda); opacity:0; animation:aparece .5s ease-out forwards; }
+.item-diag p { margin:.2rem 0; } .item-diag .problema b { color:var(--alta); } .item-diag .onde b { color:var(--baixa); }
+.item-diag .correcao b { color:var(--acento); } .item-diag .correcao span { font-family:ui-monospace,Consolas,monospace; font-size:.9rem; }
+.pensando { animation:pensa 1.2s ease-in-out infinite; }
+@keyframes aparece { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+/* ── Indícios (honestidade da IA) ─────────────────────────── */
+.indicios { margin-top:.8rem; border-top:1px solid var(--borda); padding-top:.6rem; font-size:.9rem; }
+.indicios summary { cursor:pointer; color:var(--acento); font-weight:600; }
+.indicios ul { margin:.2rem 0 .6rem; padding-left:1.2rem; color:var(--suave); }
+.ind-ip { margin:.6rem 0 .1rem; font-weight:700; } .ind-alerta { color:var(--alta); } .ind-ok { color:var(--acento); }
+/* ── Conectar ─────────────────────────────────────────────── */
+.intro { color:var(--suave); max-width:760px; margin-top:-.4rem; }
+.passo { position:relative; padding-top:1.4rem; }
+.numero-passo { position:absolute; top:-12px; left:1rem; background:var(--acento); color:#061210; font-weight:800;
+  width:28px; height:28px; border-radius:50%; display:grid; place-items:center; }
+pre.comando { background:#0c1116; border:1px solid var(--borda); border-radius:8px; padding:.8rem; white-space:pre-wrap;
+  word-break:break-all; font-size:.85rem; color:#b8f2e6; }
+.online { color:var(--acento); font-weight:700; } .offline { color:var(--suave); }
+/* ── Nota de saúde ────────────────────────────────────────── */
+.saude { display:grid; grid-template-columns:220px 1fr; gap:1.5rem; align-items:start; border-width:2px; }
+.nota-bloco { text-align:center; padding:.4rem 0; }
+.rotulo-nota { display:block; color:var(--suave); font-size:.85rem; }
+.nota { font-size:4.2rem; font-weight:800; line-height:1.1; font-variant-numeric:tabular-nums; } .de100 { color:var(--suave); }
+.faixa { display:block; font-weight:800; font-size:1.1rem; margin-top:.2rem; }
+.saude-boa { border-color:var(--acento); } .saude-boa .nota, .saude-boa .faixa { color:var(--acento); }
+.saude-atencao { border-color:var(--media); } .saude-atencao .nota, .saude-atencao .faixa { color:var(--media); }
+.saude-risco { border-color:var(--alta); } .saude-risco .nota, .saude-risco .faixa { color:var(--alta); }
+.saude-critica { border-color:var(--critica); } .saude-critica .nota, .saude-critica .faixa { color:var(--critica); }
+.saude-detalhes h3 { margin:.6rem 0 .3rem; font-size:.95rem; }
+.acoes-saude { margin:0; padding-left:1.3rem; } .acoes-saude li { margin:.35rem 0; }
+.acoes-saude .meta { font-size:.82rem; word-break:break-word; }
+.porque { margin-top:.6rem; font-size:.88rem; } .porque summary { cursor:pointer; color:var(--acento); }
+.porque ul { color:var(--suave); padding-left:1.2rem; }
+@media (max-width: 700px) { .saude { grid-template-columns:1fr; } }
+/* ── Chat ─────────────────────────────────────────────────── */
+.chat { display:flex; flex-direction:column; gap:.8rem; }
+.conversa { min-height:320px; max-height:55vh; overflow-y:auto; display:flex; flex-direction:column; gap:.6rem; padding:.3rem; }
+.msg { max-width:78%; padding:.7rem 1rem; border-radius:14px; line-height:1.5; white-space:pre-wrap; animation:aparece .3s ease-out; }
+.msg.voce { align-self:flex-end; background:var(--acento); color:#061210; border-bottom-right-radius:4px; }
+.msg.ia { align-self:flex-start; background:#222c38; border-bottom-left-radius:4px; }
+.msg.digitando { color:var(--suave); animation:pensa 1.2s ease-in-out infinite; } .msg.erro { color:var(--critica); }
+.origem-msg { display:block; margin-top:.4rem; color:var(--suave); font-size:.75rem; }
+.sugestoes { display:flex; flex-wrap:wrap; gap:.5rem; }
+button.sugestao { background:transparent; color:var(--acento); border:1px solid var(--acento); border-radius:999px; font-weight:500; }
+.form-chat { display:flex; gap:.6rem; } .form-chat input[name=pergunta] { flex:1; }
+/* ── Telegram ─────────────────────────────────────────────── */
+.passos-telegram li { margin:.35rem 0; } .botoes-telegram { display:flex; gap:.8rem; flex-wrap:wrap; margin-top:.6rem; }
+.botoes-telegram form { margin:0; }

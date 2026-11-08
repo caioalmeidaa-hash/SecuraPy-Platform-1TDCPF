@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block titulo %}Conectar · SecuraPy{% endblock %}
+{% block conteudo %}
+<h1>🔌 Conectar meu sistema</h1>
+<p class="intro">Ligue o servidor do seu site, loja ou startup ao SecuraPy. A partir daí, cada tentativa de invasão
+  aparece aqui na hora — sem você precisar entender de logs.</p>
+
+<section class="grade">
+  <div class="cartao passo">
+    <span class="numero-passo">1</span>
+    <h2>Abra o terminal do servidor</h2>
+    <p>É o computador onde o seu site ou sistema roda (Linux). Pode ser um servidor na nuvem
+      (AWS, Google Cloud, DigitalOcean…) ou uma máquina na sua empresa.</p>
+  </div>
+  <div class="cartao passo">
+    <span class="numero-passo">2</span>
+    <h2>Copie e cole estes 2 comandos</h2>
+    <pre class="comando" id="cmd-coletor">curl -fsSL {{ endereco }}/conectar/coletor.py -o coletor.py
+sudo python3 coletor.py --url {{ endereco }} --email {{ email }} --auto</pre>
+    <button type="button" class="copiar" data-alvo="cmd-coletor">Copiar comandos</button>
+    <p class="meta">Ele vai pedir a sua senha do SecuraPy. Se o servidor for outra máquina, troque
+      <code>localhost</code> pelo endereço IP desta máquina.</p>
+  </div>
+</section>
+
+<section class="grade">
+  <div class="cartao passo">
+    <span class="numero-passo">3</span>
+    <h2>Pronto — acompanhe na tela “Ao vivo”</h2>
+    <p>O coletor descobre sozinho onde ficam os registros e manda para cá, a cada 2 segundos, só o que importa
+      para a segurança:</p>
+    <ul>
+      <li><b>Logins</b> no servidor (tentativas certas e erradas)</li>
+      <li><b>Bloqueios do firewall</b> (alguém batendo em portas fechadas)</li>
+      <li><b>Acessos ao site</b> (para pegar ataques como SQL Injection)</li>
+    </ul>
+    <p class="meta">🔒 Nenhum outro arquivo, documento ou dado do servidor sai de lá.</p>
+  </div>
+  <div class="cartao">
+    <h2>Sistemas conectados</h2>
+    {% if coletores %}
+    <table>
+      <thead><tr><th>Servidor</th><th>Status</th><th>Linhas</th><th>Alertas</th></tr></thead>
+      <tbody>
+      {% for c in coletores %}
+        <tr>
+          <td>{{ c.nome }}</td>
+          <td>{% if c.online %}<span class="online">● conectado</span> <small class="meta">há {{ c.segundos }} s</small>
+              {% else %}<span class="offline">● sem sinal</span> <small class="meta">há {{ c.segundos // 60 }} min</small>{% endif %}</td>
+          <td>{{ c.linhas }}</td><td>{{ c.alertas }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="vazio">Nenhum servidor conectado ainda. Rode os comandos do passo 2 e atualize esta página.</p>
+    {% endif %}
+  </div>
+</section>
+<section class="cartao" id="telegram">
+  <h2>📲 Alertas no celular (Telegram)</h2>
+  {% if telegram_ok %}
+    <p><span class="online">● Ativado.</span> Quando acontecer um ataque crítico, você recebe uma mensagem no Telegram
+      (no máximo 1 a cada 2 minutos por atacante, para não lotar o celular).</p>
+  {% else %}
+    <p>Receba no celular um aviso em linguagem simples sempre que acontecer algo grave. Leva 2 minutos:</p>
+    <ol class="passos-telegram">
+      <li>No Telegram, procure <b>@BotFather</b>, envie <code>/newbot</code> e escolha um nome. Ele te dá um <b>token</b>.</li>
+      <li>No servidor do SecuraPy, coloque no arquivo <code>.env</code>: <code>TELEGRAM_BOT_TOKEN=o-token</code></li>
+      <li>Abra o seu bot novo no Telegram e mande um “oi”.</li>
+      <li>Rode <code>sudo docker compose up -d</code> e clique em <b>Descobrir meu chat ID</b> aqui embaixo.</li>
+      <li>Coloque o número no <code>.env</code> (<code>TELEGRAM_CHAT_ID=...</code>), rode o <code>docker compose up -d</code> de novo e envie o teste.</li>
+    </ol>
+  {% endif %}
+  <div class="botoes-telegram">
+    {% if tem_token %}
+    <form method="post" action="{{ url_for('web.telegram_descobrir') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="secundario">Descobrir meu chat ID</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('web.telegram_teste') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}"><button>Enviar mensagem de teste</button>
+    </form>
+  </div>
+</section>
+<script src="{{ url_for('static', filename='conectar.js') }}"></script>
+{% endblock %}
